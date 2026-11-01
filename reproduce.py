@@ -4,12 +4,31 @@ from bisect import bisect_left
 from collections import Counter
 from itertools import product
 from pathlib import Path
-import csv
 import json
 import io
 from certify import certify, uniform, write_csv, display_bound
 
 ROOT=Path(__file__).resolve().parent
+
+# Petal-width feature and class index for all 150 records in the corrected
+# scikit-learn Iris dataset, encoded in tenths (50 records per class).
+# Source: R. A. Fisher, Iris, UCI ML Repository, DOI 10.24432/C56C76.
+# License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+IRIS_TENTHS=(
+    '0202020202040302020102020101020404030303020402050202040202020204010202020201020203030206040302020202',
+    '1415151315131610131410151014131415101511181315121314141715101110121615161513131312141210131213131113',
+    '2519211822211718182520192120242318222315232020182118181821161920221514232418182124231923252319202318',
+)
+
+
+def iris_data():
+    rows=[]
+    for label,encoded in enumerate(IRIS_TENTHS):
+        assert len(encoded)==100
+        for i in range(0,len(encoded),2):
+            width=F(int(encoded[i:i+2]),10)
+            rows.append(((width-F(1,10))/F(12,5),label))
+    return rows
 
 
 class Step:
@@ -199,8 +218,9 @@ def save_figure(fig, path):
 
 
 def main():
-    with (ROOT/'data/iris_petal_width.csv').open() as f:
-        data=[((F(r['petal_width_cm'])-F(1,10))/F(12,5),int(r['class'])) for r in csv.DictReader(f)]
+    (ROOT/'data').mkdir(exist_ok=True)
+    (ROOT/'figures').mkdir(exist_ok=True)
+    data=iris_data()
     iris,nested=train(data)
     model={'cuts':list(map(str,iris.cuts)),'labels':iris.labels,'nested':nested}
     (ROOT/'data/iris_model.json').write_text(json.dumps(model,default=str,indent=2)+'\n')
