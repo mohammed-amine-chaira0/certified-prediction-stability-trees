@@ -1,4 +1,3 @@
-"""Exact dyadic interval sums. All certificate arithmetic uses Fraction."""
 from fractions import Fraction as F
 import heapq
 
