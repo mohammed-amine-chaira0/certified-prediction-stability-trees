@@ -1,4 +1,3 @@
-"""Exact prediction-stability experiments: python reproduce.py."""
 from fractions import Fraction as F
 from bisect import bisect_left
 from collections import Counter
